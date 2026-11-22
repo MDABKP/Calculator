@@ -119,23 +119,43 @@ jobs:
             rm -f "$APK"
             exit 1
           fi
+      - name: Rename APKs
+        run: |
+          mkdir -p dist
+          D=android/app/build/outputs/apk/debug/app-debug.apk
+          R=android/app/build/outputs/apk/release/app-release.apk
+          if [ -f "$D" ]; then cp "$D" "dist/Sohoj-Calculator-v${VER}-debug.apk"; fi
+          if [ -f "$R" ]; then cp "$R" "dist/Sohoj-Calculator-v${VER}-release.apk"; fi
+          ls -la dist
       - name: Remove keystore from runner
         if: always()
         run: rm -f "$RUNNER_TEMP/release.keystore"
       - uses: actions/upload-artifact@v4
         with:
           name: calculator-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: dist/*-debug.apk
       - uses: actions/upload-artifact@v4
         with:
           name: calculator-apk-release
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: dist/*-release.apk
           if-no-files-found: ignore
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
-          name: Calculator ${{ env.VER }}
-          body: "app-release.apk = faster start, recommended. app-debug.apk = fallback if release is missing."
+          name: Sohoj Calculator v${{ env.VER }}
+          body: |
+            📲 কোনটা নামাবেন?
+            • Sohoj-Calculator-v${{ env.VER }}-release.apk: এটাই নামান। দ্রুত চলে ও প্রস্তাবিত।
+            • Sohoj-Calculator-v${{ env.VER }}-debug.apk: শুধু উপরেরটা না চললে ব্যবহার করুন।
+
+            ⚙️ ইনস্টলের নিয়ম
+            1. APK ফাইলে চাপ দিয়ে ইনস্টল করুন।
+            2. "অজানা উৎস" বা Play Protect-এর সতর্কতা এলে "তবুও ইনস্টল করুন" বেছে নিন।
+               (অ্যাপটা Play Store-এ নেই, তাই এই সতর্কতা স্বাভাবিক।)
+
+            🔄 আপডেট করতে নতুন APK নামিয়ে ইনস্টল করুন, আগেরটা মুছতে হবে না।
+
+            শুধু এই রিপোর Releases পাতা থেকেই APK নামান।
           files: |
-            android/app/build/outputs/apk/release/app-release.apk
-            android/app/build/outputs/apk/debug/app-debug.apk
+            dist/*-release.apk
+            dist/*-debug.apk

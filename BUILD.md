@@ -33,7 +33,7 @@
 ## ধাপ ৩: বিল্ড চালান
 
 1. Actions → Build APK → Run workflow।
-2. ৫-১০ মিনিট পর Releases পাতায় `app-release.apk` ও `app-debug.apk` পাবেন।
+2. ৫-১০ মিনিট পর Releases পাতায় `Sohoj-Calculator-v<ভার্সন>-release.apk` ও `...-debug.apk` পাবেন।
 
 ## ওয়ার্কফ্লো ফাইল না থাকলে
 
@@ -52,3 +52,10 @@
 ## স্ক্রিনশট
 
 `screenshots/` ফোল্ডারে আছে, `www`-এর বাইরে, তাই APK-র সাইজে প্রভাব ফেলে না।
+
+## অ্যাপ ও ফাইলের নাম বদলাতে
+
+- ফোনে অ্যাপের নাম: `capacitor.config.json`-এর `appName`।
+- অ্যাবাউট পাতার নাম: `www/index.html`-এ `class="aname"` লাগানো লেখা।
+- APK ফাইলের নাম: ওয়ার্কফ্লোর `Rename APKs` ধাপ (ফাইলের নামে ফাঁকা ও বাংলা অক্ষর দেবেন না)।
+- অ্যাপ আইডি `com.mycalc.app` বদলাবেন না, বদলালে আগের অ্যাপের ওপর আপডেট হবে না।

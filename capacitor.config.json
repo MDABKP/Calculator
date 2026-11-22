@@ -1,6 +1,6 @@
 {
   "appId": "com.mycalc.app",
-  "appName": "Calculator",
+  "appName": "Sohoj Calculator",
   "webDir": "www",
   "android": {
     "backgroundColor": "#16171a"
