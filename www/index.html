@@ -19,7 +19,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);font-family
 .sub{text-align:right;white-space:nowrap;overflow-x:auto;overflow-y:hidden;font-size:30px;color:var(--dim);height:48px;line-height:40px;margin-top:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x}
 .sub::-webkit-scrollbar{display:none}
 .main{text-align:right;white-space:nowrap;overflow-x:auto;overflow-y:hidden;font-size:76px;font-weight:500;line-height:1.15;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x}
-.pad{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(6,minmax(0,1fr));gap:9px;padding:12px 10px calc(12px);height:60%;box-sizing:border-box}
+.pad{touch-action:manipulation;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(6,minmax(0,1fr));gap:9px;padding:12px 10px calc(12px);height:60%;box-sizing:border-box}
 button{border:0;margin:0;padding:0;background:var(--key);color:var(--txt);font:inherit;font-size:34px;border-radius:16px;cursor:pointer}
 button:active{filter:brightness(1.4)}
 button:focus-visible{outline:2px solid var(--acc);outline-offset:-3px}
@@ -164,7 +164,10 @@ html[data-theme=amoled] .pad .a:not([data-k=C]),html[data-theme=midnight] .pad .
 html[data-theme=amoled] .pad .a.flash,html[data-theme=midnight] .pad .a.flash,html[data-theme=cream] .pad .a.flash{filter:brightness(1.3)}
 .hbtn{font-size:24px}
 button{transition:background .25s}
-.flash{background:var(--acc)!important;color:#fff!important}
+.pad button{transition:scale .22s cubic-bezier(.2,.9,.3,1.3),background .22s,filter .16s}
+.pad button.pr,.pad button:active{scale:.9;filter:brightness(1.35);transition:scale .05s ease-out,background .22s,filter .05s}
+.pad button.flash.pr,.pad button.flash:active{filter:none}
+.flash{background:var(--acc)!important;color:#fff!important;transition:scale .22s cubic-bezier(.2,.9,.3,1.3)!important}
 .sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
 .sheet[hidden],.pop[hidden]{display:none}
 .card{width:100%;max-width:480px;background:var(--panel);border-radius:24px 24px 0 0;padding:18px 22px calc(18px + env(safe-area-inset-bottom,0px))}
@@ -832,7 +835,7 @@ document.getElementById("hist").addEventListener("click",function(e){
   var it=hist[+n.dataset.i];if(!it)return;
   lastExpr=it.e;expr=String(it.r);done=true;toggleHist();render();
 });
-document.getElementById("pad").addEventListener("click",function(e){var b=e.target.closest("button");if(b){fb(b);if(b.dataset.k==="C")swipeAway();press(b.dataset.k)}});
+(function(){var pad=document.getElementById("pad");function go(e){var b=e.target.closest("button");if(b){fb(b);if(b.dataset.k==="C")swipeAway();press(b.dataset.k)}}pad.addEventListener("pointerdown",function(e){if(e.pointerType==="mouse"&&e.button!==0)return;go(e)});pad.addEventListener("click",function(e){if(e.detail===0)go(e)})})();
 render();
 var S={intro:true,ia:"logo",bn:false,snd:true,st:"click",vol:60,vib:true,flash:true,th:"dark",acc:"#f5900a",ma:"mix",mk:"normal",rpe:true,rpb:true},ACCS=["#f5900a","#3a9bff","#2ecc71","#e84a8a","#f1c40f","#9b6bff","#d9731a"],actx=null;
 try{Object.assign(S,JSON.parse(load("calc_set")||"{}"))}catch(e){}
@@ -858,7 +861,7 @@ $("sheet").addEventListener("click",function(e){var t=e.target;
  if(th&&th.dataset.th!==S.th){if(!S.accs)S.accs={};if(!S.accs[S.th])S.accs[S.th]=S.acc;S.th=th.dataset.th;S.acc=S.accs[S.th]||THACC[S.th]||"#f5900a";applySet()}if(c){if(!S.accs)S.accs={};S.acc=c.dataset.c;S.accs[S.th]=S.acc;applySet()}});
 $("sheet").addEventListener("change",function(){S.snd=$("s_snd").checked;S.vib=$("s_vib").checked;S.flash=$("s_flash").checked;S.vol=+$("s_vol").value;S.bn=$("s_bn").checked;S.intro=$("s_intro").checked;S.rpe=$("s_rpe").checked;S.rpb=$("s_rpb").checked;applySet();applyBn();if(S.snd)beep()});
 applySet();
-function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();var t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain(),T=S.st,v=Math.max(0.001,S.vol/100*0.35)*(T==="click"?0.5:1),d=T==="tick"?0.02:T==="pop"?0.07:0.04;
+function audioInit(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume()}catch(e){}} ["pointerup","click","touchend","keydown"].forEach(function(t){document.addEventListener(t,function(){if(S.snd&&!(actx&&actx.state==="running"))audioInit()},{passive:true})}); setTimeout(function(){if(S.snd)audioInit()},1200); function beep(){try{audioInit();var t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain(),T=S.st,v=Math.max(0.001,S.vol/100*0.35)*(T==="click"?0.5:1),d=T==="tick"?0.02:T==="pop"?0.07:0.04;
  o.type=T==="click"?"square":"sine";
  o.frequency.setValueAtTime(T==="tick"?1800:T==="pop"?450:700,t);
  if(T==="pop")o.frequency.exponentialRampToValueAtTime(160,t+d);
@@ -872,11 +875,7 @@ function swipeAway(){
   document.body.appendChild(g);setTimeout(function(){g.remove()},500)});
  var m=$("main");m.classList.remove("rise");void m.offsetWidth;m.classList.add("rise");
 }
-function fb(btn){
- if(S.vib&&navigator.vibrate){try{navigator.vibrate(12)}catch(e){}}
- if(S.snd)beep();
- if(S.flash&&btn){btn.classList.add("flash");setTimeout(function(){btn.classList.remove("flash")},120)}
-}
+function hap(){var H=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Haptics;if(H&&H.impact){try{H.impact({style:"LIGHT"}).catch(function(){});return true}catch(e){}}return false} function fb(btn){  if(S.vib&&!hap()&&navigator.vibrate){try{navigator.vibrate(25)}catch(e){}}  if(btn){btn.classList.add("pr");setTimeout(function(){btn.classList.remove("pr")},150)}  if(S.flash&&btn){btn.classList.add("flash");setTimeout(function(){btn.classList.remove("flash")},150)}  if(S.snd)beep(); }
 var lp=null,lx=0,ly=0,mainEl=$("main"),pop=$("pop"),BN="০১২৩৪৫৬৭৮৯";
 function clr(){if(lp){clearTimeout(lp);lp=null}}
 function toast(t){var el=$("toast");el.textContent=t;el.classList.add("show");setTimeout(function(){el.classList.remove("show")},1500)}
